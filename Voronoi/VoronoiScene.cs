@@ -18,9 +18,6 @@ namespace Voronoi
 
 		public VoronoiScene() : base()
 		{
-			Entity temp = new Entity();
-			temp.Graphic =Image.CreateRectangle(DataSingleton.Instance.Width, DataSingleton.Instance.Height, Color.Grey);
-			Add(temp);
 			AddMultiple(GeneratePoints(NumSites).ToArray());
 			/*AddMultiple(GenerateCells().ToArray());*/
 		}
@@ -73,7 +70,7 @@ namespace Voronoi
 				}
 
 			}
-		} */
+		}*/
 
 		public override void Begin()
 		{

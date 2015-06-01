@@ -7,9 +7,10 @@ using Otter;
 
 namespace Voronoi
 {
-	class VoronoiPoint : Entity
+	public class VoronoiPoint : Entity
 	{
 		private readonly Image pointImage = Image.CreateCircle(10, Color.White);
+	    private readonly int minDistance = 50;
 
 		public VoronoiPoint(float x, float y) : base()
 		{
@@ -34,13 +35,13 @@ namespace Voronoi
 
 			foreach (var point in points)
 			{
-				if (Util.GetDistance(X, Y, point.X, point.Y) <= 50)
+				if (Util.GetDistance(X, Y, point.X, point.Y) <= minDistance)
 				{
 					valid = false;
 					break;
 				}
-				else if (X < 20 || X > DataSingleton.Instance.Width - 20
-				         || Y < 20 || Y > DataSingleton.Instance.Height - 20)
+				else if (X < minDistance || X > DataSingleton.Instance.Width - minDistance
+				         || Y < minDistance || Y > DataSingleton.Instance.Height - minDistance)
 				{
 					valid = false;
 					break;

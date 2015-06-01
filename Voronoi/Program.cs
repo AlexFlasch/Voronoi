@@ -11,7 +11,7 @@ namespace Voronoi
 	{
 		static void Main(string[] args)
 		{
-			Game game = new Game("Game", 3840, 2160); //creates a game with internal resolution 3840x2160
+			Game game = new Game("Game", 2560, 1440); //creates a game with internal resolution 3840x2160
 			game.SetWindow(2560, 1440); ; //outputs the game to a window scaled down to 2560x1440
 			game.MouseVisible = true;
 			DataSingleton.Instance.Width = 2560;
