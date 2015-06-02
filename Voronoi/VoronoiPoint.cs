@@ -9,11 +9,15 @@ namespace Voronoi
 {
 	public class VoronoiPoint : Entity
 	{
-		private readonly Image pointImage = Image.CreateCircle(10, Color.White);
+		private readonly static int radius = 5;
+		private readonly Image pointImage = Image.CreateCircle(radius, Color.White);
 	    private readonly int minDistance = 50;
 
 		public VoronoiPoint(float x, float y) : base()
 		{
+			pointImage.X -= radius;
+			pointImage.Y -= radius;
+			Image.CirclePointCount = 100;
 			SetGraphic(pointImage);
 			SetX(x);
 			SetY(y);

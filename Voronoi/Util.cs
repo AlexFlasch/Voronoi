@@ -15,5 +15,11 @@ namespace Voronoi
 			//use the distance formula distance = sqrt((x2-x1)^2 + (y2-y1)^2)
 			return Math.Sqrt(Math.Pow(x2 - x1, 2) + Math.Pow(y2 - y1, 2));
 		}
+
+		public static double CrossProduct2D(VoronoiGraph.Vertex a, VoronoiGraph.Vertex b)
+		{
+			//(Ax * By) - (Bx * Ay)
+			return a.point.X*b.point.Y - b.point.X*a.point.Y;
+		}
 	}
 }
