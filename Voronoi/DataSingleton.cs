@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Otter;
 
 namespace Voronoi
 {
@@ -33,6 +34,8 @@ namespace Voronoi
 		public int Width { get; set; }
 		public int Height { get; set; }
 
+		//config stuff
+		public Button ResetButton { get; set; }
 
 	}
 }

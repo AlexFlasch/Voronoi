@@ -19,7 +19,7 @@ namespace Voronoi
 		public static double CrossProduct2D(VoronoiGraph.Vertex a, VoronoiGraph.Vertex b)
 		{
 			//(Ax * By) - (Bx * Ay)
-			return a.point.X*b.point.Y - b.point.X*a.point.Y;
+			return a.Point.X*b.Point.Y - b.Point.X*a.Point.Y;
 		}
 	}
 }

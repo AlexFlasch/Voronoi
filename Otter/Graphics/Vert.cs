@@ -135,7 +135,7 @@ namespace Otter {
 
         #region Internal
 
-        internal Vertex SFMLVertex {
+        public Vertex SFMLVertex {
             get { return vertex; }
         }
 

@@ -11,109 +11,84 @@ namespace Voronoi
     {
         public class Vertex
         {
-            public VoronoiPoint point;
-            public List<VoronoiPoint> neighbors;
+            public VoronoiPoint Point;
+            public List<VoronoiPoint> Neighbors;
 
 	        public Vertex(VoronoiPoint point)
 	        {
-		        this.point = point;
+		        this.Point = point;
+	        }
+
+	        public void AddNeighbor(VoronoiPoint p)
+	        {
+		        Neighbors.Add(p);
+	        }
+
+	        public void RemoveNeighbor(VoronoiPoint p)
+	        {
+		        Neighbors.Remove(p);
 	        }
         }
 		//end Vertex class
 
         public class Edge
         {
-            public Vertex node1;
-            public Vertex node2;
+            public Vertex Node1;
+            public Vertex Node2;
 
             public double Length
             {
-                get { return Util.GetDistance(node1.point.X, node1.point.Y, node2.point.X, node2.point.Y); }
+                get { return Util.GetDistance(Node1.Point.X, Node1.Point.Y, Node2.Point.X, Node2.Point.Y); }
             }
 
 	        public Edge(VoronoiPoint a, VoronoiPoint b)
 	        {
-		        node1 = new Vertex(a);
-		        node2 = new Vertex(b);
+		        Node1 = new Vertex(a);
+		        Node2 = new Vertex(b);
 	        }
 
 	        public bool Intersects(Edge e)
 	        {
-		        return DoBoundingBoxesIntersect(this, e)
-		               && LineSegmentTouchesOrCrossesLine(this, e)
-		               && LineSegmentTouchesOrCrossesLine(e, this);
-	        }
+		        var line1 = new Line2(Node1.Point.X, Node1.Point.Y, Node2.Point.X, Node2.Point.Y);
+				var line2 = new Line2(e.Node1.Point.X, e.Node1.Point.Y, e.Node2.Point.X, e.Node2.Point.Y);
 
-	        private bool DoBoundingBoxesIntersect(Edge a, Edge b)
-	        {
-		        return a.node1.point.X <= b.node2.point.X
-		               && a.node2.point.X >= b.node1.point.X
-		               && a.node1.point.Y <= b.node2.point.Y
-		               && a.node2.point.Y >= b.node1.point.Y;
-	        }
-
-	        private bool isPointOnLine(Edge a, Vertex b)
-	        {
-		        var aTemp = new Edge(new VoronoiPoint(0, 0),
-					new VoronoiPoint(a.node2.point.X - a.node1.point.X, a.node2.point.Y - a.node1.point.Y) );
-		        var bTemp = new Vertex(new VoronoiPoint(b.point.X - a.node1.point.X, b.point.Y - a.node1.point.Y));
-
-		        var r = Util.CrossProduct2D(aTemp.node2, bTemp);
-
-		        return Math.Abs(r) < Double.Epsilon;
-	        }
-
-	        private bool isPointRightOfLine(Edge a, Vertex b)
-	        {
-		        var aTemp = new Edge(new VoronoiPoint(0, 0),
-			        new VoronoiPoint(a.node2.point.X - a.node1.point.X, a.node2.point.Y - a.node1.point.Y));
-				var bTemp = new Vertex(new VoronoiPoint(b.point.X - a.node1.point.X, b.point.Y - a.node1.point.Y));
-
-		        return Util.CrossProduct2D(aTemp.node2, bTemp) < 0;
-	        }
-
-	        private bool LineSegmentTouchesOrCrossesLine(Edge a, Edge b)
-	        {
-		        return isPointOnLine(a, b.node1)
-		               || isPointOnLine(a, b.node2)
-		               || (isPointRightOfLine(a, b.node1) ^
-		                   isPointRightOfLine(a, b.node2));
+		        return line2.Intersects(line1);
 	        }
         }
 		//end Edge class
 
-	    private List<Vertex> vertices;
-	    private List<Edge> edges;
+	    private readonly List<Vertex> _vertices;
+	    private readonly List<Edge> _edges;
 
 	    public VoronoiGraph()
 	    {
-		    vertices = new List<Vertex>();
-			edges = new List<Edge>();
+		    _vertices = new List<Vertex>();
+			_edges = new List<Edge>();
 	    }
 
 	    public void AddVertex(VoronoiPoint point)
 	    {
-		    vertices.Add(new Vertex(point));
+		    _vertices.Add(new Vertex(point));
 	    }
 
 	    public void AddEdge(VoronoiPoint a, VoronoiPoint b)
 	    {
-		    edges.Add(new Edge(a, b));
+		    _edges.Add(new Edge(a, b));
 	    }
 
 	    public void AddEdge(Edge e)
 	    {
-		    edges.Add(e);
+		    _edges.Add(e);
 	    }
 
 	    public List<Vertex> GetVertices()
 	    {
-		    return vertices;
+		    return _vertices;
 	    }
 
 	    public List<Edge> GetEdges()
 	    {
-		    return edges;
+		    return _edges;
 	    } 
     }
 }
