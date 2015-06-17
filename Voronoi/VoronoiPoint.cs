@@ -12,6 +12,17 @@ namespace Voronoi
 		private readonly static int radius = 5;
 		private readonly Image pointImage = Image.CreateCircle(radius, Color.White);
 	    private readonly int minDistance = 50;
+		private Text _orderText;
+
+		public Text OrderText
+		{
+			get { return _orderText; }
+			set
+			{
+				_orderText = value;
+				AddGraphic(_orderText, pointImage.X, pointImage.Y - 75);
+			}
+		}
 
 		public VoronoiPoint(float x, float y) : base()
 		{
@@ -33,7 +44,7 @@ namespace Voronoi
 			Y = y;
 		}
 
-		public bool IsValid(List<Entity> points)
+		public bool IsValid(List<VoronoiPoint> points)
 		{
 			bool valid = true;
 

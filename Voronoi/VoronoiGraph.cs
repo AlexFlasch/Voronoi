@@ -9,6 +9,9 @@ namespace Voronoi
 {
     public class VoronoiGraph : Entity
     {
+
+		public List<List<Vertex>> DividedGraph { get; set; } 
+
         public class Vertex
         {
             public VoronoiPoint Point;
@@ -16,7 +19,17 @@ namespace Voronoi
 
 	        public Vertex(VoronoiPoint point)
 	        {
-		        this.Point = point;
+		        Point = point;
+	        }
+
+	        public Vertex(double x, double y)
+	        {
+		        Point = new VoronoiPoint((float) x, (float) y);
+	        }
+
+	        public Vertex(int x, int y)
+	        {
+		        Point = new VoronoiPoint(x, y);
 	        }
 
 	        public void AddNeighbor(VoronoiPoint p)
@@ -29,7 +42,6 @@ namespace Voronoi
 		        Neighbors.Remove(p);
 	        }
         }
-		//end Vertex class
 
         public class Edge
         {
@@ -55,7 +67,6 @@ namespace Voronoi
 		        return line2.Intersects(line1);
 	        }
         }
-		//end Edge class
 
 	    private readonly List<Vertex> _vertices;
 	    private readonly List<Edge> _edges;
@@ -64,12 +75,151 @@ namespace Voronoi
 	    {
 		    _vertices = new List<Vertex>();
 			_edges = new List<Edge>();
+
+			DividedGraph = new List<List<Vertex>>();
 	    }
 
-	    public void AddVertex(VoronoiPoint point)
+	    public VoronoiGraph(List<VoronoiPoint> points)
+	    {
+			_vertices = new List<Vertex>();
+			_edges = new List<Edge>();
+
+			DividedGraph = new List<List<Vertex>>();
+
+		    foreach (var point in points)
+		    {
+			    AddVertex(point);
+		    }
+	    }
+
+		#region Private Methods
+
+		#region Private Vertex Methods
+
+	    private Vertex PointToVertex(VoronoiPoint p)
+	    {
+		    return new Vertex(p);
+	    }
+
+		#endregion
+
+		#region Edge Methods
+
+	    private Edge PointsToEdge(VoronoiPoint p1, VoronoiPoint p2)
+	    {
+		    return new Edge(p1, p2);
+	    }
+
+		#endregion
+
+		#region Graph Methods
+
+		private void OrderVertices()
+		{
+			_vertices.Sort((x1, x2) => x1.Point.X.CompareTo(x2.Point.X));
+
+			//Add the order text to each VoronoiPoint
+			/*for (int i = 0; i < _vertices.Count; i++)
+			{
+				string orderText = "" + i + "\nx: " + _vertices[i].Point.X + "\ny: " + _vertices[i].Point.Y;
+				_vertices[i].Point.OrderText = new Text(orderText, 16);
+			}*/
+		}
+
+	    private List<List<Vertex>> DivideGraph(List<Vertex> points)
+		{
+			List<Vertex> half1 = new List<Vertex>();
+			List<Vertex> half2 = new List<Vertex>();
+
+			for (int i = 0; i < points.Count; i++)
+			{
+				if (i < points.Count/2)
+				{
+					half1.Add(points.ElementAt(i));
+				}
+				else
+				{
+					half2.Add(points.ElementAt(i));
+				}
+			}
+
+			var graphList = new List<List<Vertex>> {half1, half2};
+
+		    return DivideGraphRec(graphList);
+		}
+
+	    private List<List<Vertex>> DivideGraphRec(List<List<Vertex>> graphList)
+	    {
+		    if (graphList.Count == 0)
+		    {
+			    return DividedGraph;
+		    }
+
+		    var workingList = graphList;
+
+		    foreach (var list in graphList)
+		    {
+				if (list.Count <= 3)
+				{
+					//this list of points (graph) is reduced to where we need it.
+					//add to the divided graph list to be merged.
+					DividedGraph.Add(list);
+					continue;
+				}
+			    if (list.Count == 1)
+			    {
+				    Console.ForegroundColor = ConsoleColor.Red;
+				    Console.WriteLine("Uhhh... I did something wrong.");
+				    Console.ForegroundColor = ConsoleColor.White;
+				    throw new Exception("Yeah we got some problems.");
+			    }
+			    else
+			    {
+				    List<Vertex> half1 = new List<Vertex>();
+				    List<Vertex> half2 = new List<Vertex>();
+
+				    for (int i = 0; i < list.Count; i++)
+				    {
+					    if (i < list.Count/2)
+					    {
+						    half1.Add(list.ElementAt(i));
+					    }
+					    else
+					    {
+						    half2.Add(list.ElementAt(i));
+					    }
+				    }
+
+				    workingList.Add(half1);
+				    workingList.Add(half2);
+
+				    DividedGraph.Clear();
+
+					return DivideGraphRec(workingList);
+
+			    }
+		    }
+
+		    return DividedGraph;
+	    }
+
+		#endregion
+
+		#endregion
+
+		#region Public Methods
+
+		public void AddVertex(VoronoiPoint point)
 	    {
 		    _vertices.Add(new Vertex(point));
 	    }
+
+	    public void RemoveVertex(VoronoiPoint point)
+	    {
+		    Vertex v = PointToVertex(point);
+
+		    _vertices.Remove(v);
+		}
 
 	    public void AddEdge(VoronoiPoint a, VoronoiPoint b)
 	    {
@@ -81,6 +231,11 @@ namespace Voronoi
 		    _edges.Add(e);
 	    }
 
+	    public void RemoveEdge(Edge e)
+	    {
+		    _edges.Remove(e);
+	    }
+
 	    public List<Vertex> GetVertices()
 	    {
 		    return _vertices;
@@ -89,6 +244,26 @@ namespace Voronoi
 	    public List<Edge> GetEdges()
 	    {
 		    return _edges;
-	    } 
-    }
+		}
+
+	    public void CreateDelaunayTriangulation()
+	    {
+			OrderVertices();
+		    var dividedGraphs = DivideGraph(_vertices);
+
+		    for (int i = 0; i < dividedGraphs.Count; i++)
+		    {
+			    List<Vertex> tempList = dividedGraphs.ElementAt(i);
+
+			    for (int j = 0; j < tempList.Count; j++)
+			    {
+				    Console.ForegroundColor = ConsoleColor.Cyan;
+				    var point = tempList.ElementAt(j).Point;
+				    Console.WriteLine("Graph {0}: Point {1}: x: {2}, y{3}", i, j, point.X, point.Y);
+			    }
+		    }
+	    }
+
+		#endregion
+	}
 }

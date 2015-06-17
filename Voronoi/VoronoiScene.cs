@@ -16,7 +16,7 @@ namespace Voronoi
 		private const int NumPoints = 50;
 		private Surface voronoiSurface;
 		private VoronoiGraph graph;
-		private List<Entity> points;
+		private List<VoronoiPoint> points;
 		private List<Entity> cells;
 		private Session player;
 
@@ -27,13 +27,11 @@ namespace Voronoi
 			voronoiSurface = new Surface(width, height, Color.Black);
 
 			points = GeneratePoints(NumPoints);
-			graph = GeneratePlanarGraph(points);
-			/*AddSurface(voronoiSurface);*/
+			graph = new VoronoiGraph(points);
+			graph.CreateDelaunayTriangulation();
 			Draw.SetTarget(voronoiSurface);
 
 			Add(points);
-
-			/*AddMultiple(GenerateCells().ToArray());*/
 		}
 
 		public override void Render()
@@ -60,16 +58,15 @@ namespace Voronoi
 				Console.ForegroundColor = ConsoleColor.White;
 				Surface.Clear();
 				points = GeneratePoints(NumPoints);
-				graph = GeneratePlanarGraph(points);
 
 				Add(points);
 			}
 		}
 
-		private List<Entity> GeneratePoints(int numSites)
+		private List<VoronoiPoint> GeneratePoints(int numSites)
 		{
 			Random r = new Random();
-			List<Entity> points = new List<Entity>();
+			List<VoronoiPoint> points = new List<VoronoiPoint>();
 
 			int i = 0;
 			while(i < numSites)
@@ -89,72 +86,6 @@ namespace Voronoi
 			this.points = points;
 			return points;
 		}
-
-		private VoronoiGraph GeneratePlanarGraph(List<Entity> points)
-		{
-			var graph = new VoronoiGraph();
-
-			foreach (var point in points)
-			{
-				var tempPoint = new VoronoiPoint(point.X, point.Y);
-				graph.AddVertex(tempPoint);
-				if (graph.GetVertices().Count > 1)
-				{
-					/* "Shorthand"...?
-					 * foreach (VoronoiGraph.Edge tempEdge 
-						in from vertex in graph.GetVertices() 
-							select new VoronoiGraph.Edge(tempPoint, vertex.point)
-							into tempEdge
-							where graph.GetEdges().Count > 1 
-								let validEdge = graph.GetEdges().All(edge => !edge.Intersects(tempEdge))
-									where validEdge
-										select tempEdge)
-					{
-						graph.AddEdge(tempEdge);
-					}
-					 */
-					foreach (var vertex in graph.GetVertices())
-					{
-						VoronoiGraph.Edge tempEdge = new VoronoiGraph.Edge(tempPoint, vertex.Point);
-						if (graph.GetVertices().Count <= 1) continue;
-						bool validEdge = graph.GetEdges().All(edge => !edge.Intersects(tempEdge));
-
-						if (validEdge)
-						{
-							graph.AddEdge(tempEdge);
-						}
-					}
-				}
-			}
-
-			return graph;
-		}
-
-		/*private List<Entity> GenerateCells()
-		{
-			//make a new cell for each point generated
-			foreach (var point in points)
-			{
-				cells.Add(new VoronoiCell((VoronoiPoint)point));
-			}
-			//start with the first cell, find the nearest cell to it
-			foreach (var cell in cells)
-			{
-				var otherCells = cells.Where(c => c != cell).ToList();
-				Entity closestCell = null;
-				foreach (var otherCell in otherCells)
-				{
-					if (closestCell == null
-					    ||
-					    Util.GetDistance(otherCell.X, otherCell.Y, cell.X, cell.Y) <
-					    Util.GetDistance(closestCell.X, closestCell.Y, cell.X, cell.Y))
-					{
-						closestCell = otherCell;
-					}
-				}
-
-			}
-		}*/
 
 		public override void Begin()
 		{
